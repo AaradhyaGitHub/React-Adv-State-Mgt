@@ -222,3 +222,19 @@ Even though it might seem **repetitive** to declare the context in a separate fi
 
 🚀 Now, the `Cart` component dynamically consumes `items` from the **centralized shopping cart context**! 🎯
 
+---
+
+### :] Even simpler!
+we can make things even easier through destructuring: 
+```jsx
+  const {items} = useContext(CartContext);
+```
+then we use it as:
+```jsx
+    {items.length === 0 && <p>No items in cart!</p>}
+```
+
+## Next up!
+Linking Context to State
+
+
