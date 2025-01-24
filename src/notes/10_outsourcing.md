@@ -8,7 +8,7 @@ Instead of maintaining all the context management code inside the `App` componen
 
 ## Solution: Using Context Separately
 
-In this guide, we'll learn how to offload the context-related data management into a separate context provider component, which helps in maintaining a clean and scalable code structure.
+In this guide, we'll learn how to offload the context-related data management into the context provider component, which helps in maintaining a clean and scalable code structure.
 
 ### Step 1: Move Context Code Out of `App`
 
@@ -42,57 +42,95 @@ const ctxValue = {
 };
 ```
 
-This is moved into a new context provider component so that the App can simply consume the context rather than managing it.
+This is moved into the context provider component so that the App can simply consume the context rather than managing it.
 
-### Step 2: Create a New Context Provider Component
+### Step 2: Modify our Context Provider Component
 
 We'll now create a CartContext and a CartContextProvider component to handle the cart logic. This separates the concerns of managing the shopping cart data.
 
 ```jsx
-import { createContext, useState } from "react";
+import { createContext } from "react";
+import { useState } from "react";
 import { DUMMY_PRODUCTS } from "../dummy-products.js";
-import Cart from "../components/Cart.jsx";
 
-// Creating the CartContext
 export const CartContext = createContext({
   items: [],
   addItemToCart: () => {},
   updateItemQuantity: () => {}
 });
 
-export default function CartContextProvider({children}) {
-    const [shoppingCart, setShoppingCart] = useState({
-        items: []
+export default function CartContextProvider({ children }) {
+  const [shoppingCart, setShoppingCart] = useState({
+    items: []
+  });
+
+  function handleAddItemToCart(id) {
+    setShoppingCart((prevShoppingCart) => {
+      const updatedItems = [...prevShoppingCart.items];
+
+      const existingCartItemIndex = updatedItems.findIndex(
+        (cartItem) => cartItem.id === id
+      );
+      const existingCartItem = updatedItems[existingCartItemIndex];
+
+      if (existingCartItem) {
+        const updatedItem = {
+          ...existingCartItem,
+          quantity: existingCartItem.quantity + 1
+        };
+        updatedItems[existingCartItemIndex] = updatedItem;
+      } else {
+        const product = DUMMY_PRODUCTS.find((product) => product.id === id);
+        updatedItems.push({
+          id: id,
+          name: product.title,
+          price: product.price,
+          quantity: 1
+        });
+      }
+
+      return {
+        items: updatedItems
+      };
     });
+  }
 
-    function handleAddItemToCart(id) {
-        setShoppingCart((prevShoppingCart) => {
-            const updatedItems = [...prevShoppingCart.items];
-            // Add or update item logic
-            return { items: updatedItems };
-        });
-    }
+  function handleUpdateCartItemQuantity(productId, amount) {
+    setShoppingCart((prevShoppingCart) => {
+      const updatedItems = [...prevShoppingCart.items];
+      const updatedItemIndex = updatedItems.findIndex(
+        (item) => item.id === productId
+      );
 
-    function handleUpdateCartItemQuantity(productId, amount) {
-        setShoppingCart((prevShoppingCart) => {
-            const updatedItems = [...prevShoppingCart.items];
-            // Update item quantity or remove item logic
-            return { items: updatedItems };
-        });
-    }
+      const updatedItem = {
+        ...updatedItems[updatedItemIndex]
+      };
 
-    const ctxValue = {
-        items: shoppingCart.items,
-        addItemToCart: handleAddItemToCart,
-        updateItemQuantity: handleUpdateCartItemQuantity
-    };
+      updatedItem.quantity += amount;
 
-    return (
-        <CartContext.Provider value={ctxValue}>
-            {children}    
-        </CartContext.Provider>
-    );
+      if (updatedItem.quantity <= 0) {
+        updatedItems.splice(updatedItemIndex, 1);
+      } else {
+        updatedItems[updatedItemIndex] = updatedItem;
+      }
+
+      return {
+        items: updatedItems
+      };
+    });
+  }
+
+  const ctxValue = {
+    items: shoppingCart.items,
+    addItemToCart: handleAddItemToCart,
+    updateItemQuantity: handleUpdateCartItemQuantity
+  };
+
+  return (
+    <CartContext.Provider value={ctxValue}>{children}</CartContext.Provider>
+  );
 }
+`
 ```
 
 ### Step 3: Using the Context in the App Component
