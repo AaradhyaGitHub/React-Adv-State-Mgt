@@ -1,6 +1,7 @@
 import { createContext } from "react";
 import { useState } from "react";
 import { DUMMY_PRODUCTS } from "../dummy-products.js";
+import Cart from "../components/Cart.jsx";
 export const CartContext = createContext({
   items: [],
   addItemToCart: () => {},
@@ -73,4 +74,9 @@ export default function CartContextProvider() {
     addItemToCart: handleAddItemToCart,
     updateItemQuantity: handleUpdateCartItemQuantity
   };
+
+  return
+  <CartContext.Provider value={ctxValue}>
+    
+  </CartContext.Provider>
 }
