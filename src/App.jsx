@@ -69,7 +69,7 @@ function App() {
   }
 
   return (
-    <CartContext>
+    <CartContext value={{ items: []}}>
       <Header
         cart={shoppingCart}
         onUpdateCartItemQuantity={handleUpdateCartItemQuantity}
