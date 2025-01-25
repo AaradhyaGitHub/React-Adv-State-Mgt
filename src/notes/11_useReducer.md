@@ -151,4 +151,10 @@ function shoppingCartReducer(state, action) {
     updateItemQuantity: handleUpdateCartItemQuantity
   };
   ```
-- At this poi
+- At this point we are managing state using useReducer but since we don't have any state updating functionality, the state doesn't change
+
+---
+
+### Next Up
+
+Reflecting state changes using useReducer!
