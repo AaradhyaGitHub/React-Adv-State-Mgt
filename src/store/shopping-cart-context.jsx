@@ -1,4 +1,4 @@
-import { createContext, useState, useReducer } from "react";
+import { createContext, useReducer } from "react";
 import { DUMMY_PRODUCTS } from "../dummy-products.js";
 
 export const CartContext = createContext({
@@ -7,7 +7,7 @@ export const CartContext = createContext({
   updateItemQuantity: () => {}
 });
 
-function shoppingCartReducer() {
+function shoppingCartReducer(state, action) {
   if (action.type === "ADD_ITEM") {
     const updatedItems = [...state.items];
 
@@ -38,27 +38,27 @@ function shoppingCartReducer() {
       items: updatedItems
     };
   }
-  if(action.type === 'UPDATE_ITEM'){
+  if (action.type === "UPDATE_ITEM") {
     const updatedItems = [...state.items];
-      const updatedItemIndex = updatedItems.findIndex(
-        (item) => item.id === action.payload.productId
-      );
+    const updatedItemIndex = updatedItems.findIndex(
+      (item) => item.id === action.payload.productId
+    );
 
-      const updatedItem = {
-        ...updatedItems[updatedItemIndex]
-      };
+    const updatedItem = {
+      ...updatedItems[updatedItemIndex]
+    };
 
-      updatedItem.quantity += action.payload.amount;
+    updatedItem.quantity += action.payload.amount;
 
-      if (updatedItem.quantity <= 0) {
-        updatedItems.splice(updatedItemIndex, 1);
-      } else {
-        updatedItems[updatedItemIndex] = updatedItem;
-      }
+    if (updatedItem.quantity <= 0) {
+      updatedItems.splice(updatedItemIndex, 1);
+    } else {
+      updatedItems[updatedItemIndex] = updatedItem;
+    }
 
-      return {
-        items: updatedItems
-      };
+    return {
+      items: updatedItems
+    };
   }
   return state;
 }
@@ -76,18 +76,16 @@ export default function CartContextProvider({ children }) {
       type: "ADD_ITEM",
       payload: id
     });
-    setShoppingCart((prevShoppingCart) => {});
   }
 
   function handleUpdateCartItemQuantity(productId, amount) {
     shoppingCartDispatch({
-      type: 'UPDATE_ITEM',
+      type: "UPDATE_ITEM",
       payload: {
         productId,
         amount
       }
-    })
-   
+    });
   }
 
   const ctxValue = {
