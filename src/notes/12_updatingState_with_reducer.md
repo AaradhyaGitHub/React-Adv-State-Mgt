@@ -3,6 +3,7 @@
 ## 🔍 Reducer Initial State
 
 ### Starting Point
+
 ```jsx
 function shoppingCartReducer() {
   return state;
@@ -12,6 +13,7 @@ function shoppingCartReducer() {
 ## 🚀 Action Dispatching Journey
 
 ### Dispatch Concept Visualization
+
 ```
    Action Object
    ┌───────────────┐
@@ -23,6 +25,7 @@ function shoppingCartReducer() {
 ```
 
 ### Dispatch Examples
+
 ```jsx
 // Basic Dispatch
 shoppingCartDispatch({
@@ -39,6 +42,7 @@ shoppingCartDispatch({
 ## 🧩 State Update Logic
 
 ### Original State Update Method
+
 ```jsx
 function handleAddItemToCart(id) {
   setShoppingCart((prevShoppingCart) => {
@@ -49,8 +53,9 @@ function handleAddItemToCart(id) {
 ```
 
 ### Reducer Transformation Flow
+
 ```
-[Original State Update] 
+[Original State Update]
         ↓
 [Move Logic to Reducer]
         ↓
@@ -58,6 +63,7 @@ function handleAddItemToCart(id) {
 ```
 
 ### Reducer Implementation Stages
+
 1. 📌 Identify Action Type
 2. 🔄 Create Updated Items
 3. 🆕 Return New State
@@ -65,6 +71,7 @@ function handleAddItemToCart(id) {
 ## 💡 Key Reducer Patterns
 
 ### Basic State Return
+
 ```jsx
 return {
   items: updatedItems
@@ -72,20 +79,25 @@ return {
 ```
 
 ### Complex State Preservation
+
 ```jsx
 return {
-  ...state,  // Preserve other state properties
+  ...state, // Preserve other state properties
   items: updatedItems
 };
 ```
 
 ## 🔑 Critical Insights
+
 - Actions communicate state changes
 - Reducers centralize update logic
 - Immutability is key
 - Payload carries necessary data
+
 ---
+
 ---
+
 Now to actually edit the state, we need to edit our reducer function i.e this one:
 
 ```jsx
@@ -214,18 +226,94 @@ function shoppingCartReducer() {
 
 - Now, the prevShoppingCart value is now that `state` parameter
 - the `id` can be retrieved from the action i.e `action.payload`
-- then we're returning the new updated state as such 
+- then we're returning the new updated state as such
+
 ```jsx
 return {
-        items: updatedItems
-      };
-```
-- if we had a more complex state object with multiple properties, we might want to copy and spread the old items first so we don't lose anything and we just update the one value 
-- Like so:
-```jsx
-return {
-        ...state,
-        items: updatedItems
-      };
+  items: updatedItems
+};
 ```
 
+- if we had a more complex state object with multiple properties, we might want to copy and spread the old items first so we don't lose anything and we just update the one value
+- Like so:
+
+```jsx
+return {
+  ...state,
+  items: updatedItems
+};
+```
+
+- With that, we are handling the `ADD_ITEM` action
+- The code of course is not less than before but the logic is outside the Component and we don't have any special function form because we are automatically getting the state snapshot
+- We can now migrate the rest
+- Let's migrate `handleUpdateCartItemQuantity`
+- It currently looks like this:
+
+```jsx
+function handleUpdateCartItemQuantity(productId, amount) {
+  setShoppingCart((prevShoppingCart) => {});
+
+  const updatedItems = [...prevShoppingCart.items];
+  const updatedItemIndex = updatedItems.findIndex(
+    (item) => item.id === productId
+  );
+
+  const updatedItem = {
+    ...updatedItems[updatedItemIndex]
+  };
+
+  updatedItem.quantity += amount;
+
+  if (updatedItem.quantity <= 0) {
+    updatedItems.splice(updatedItemIndex, 1);
+  } else {
+    updatedItems[updatedItemIndex] = updatedItem;
+  }
+
+  return {
+    items: updatedItems
+  };
+}
+```
+- Then we call the dispatch function istead:
+```jsx
+  function handleUpdateCartItemQuantity(productId, amount) {
+    shoppingCartDispatch({
+      type: 'UPDATE_ITEM',
+      payload: {
+        productId,
+        amount
+      }
+    })
+   
+  }
+```
+- We also got rid of `setShoppingCart`
+- Then all that is copied into a second if block 
+like so:
+```jsx
+if(action.type === 'UPDATE_ITEM'){
+    const updatedItems = [...state.items];
+      const updatedItemIndex = updatedItems.findIndex(
+        (item) => item.id === action.payload.productId
+      );
+
+      const updatedItem = {
+        ...updatedItems[updatedItemIndex]
+      };
+
+      updatedItem.quantity += action.payload.amount;
+
+      if (updatedItem.quantity <= 0) {
+        updatedItems.splice(updatedItemIndex, 1);
+      } else {
+        updatedItems[updatedItemIndex] = updatedItem;
+      }
+
+      return {
+        items: updatedItems
+      };
+  }
+```
+ 
